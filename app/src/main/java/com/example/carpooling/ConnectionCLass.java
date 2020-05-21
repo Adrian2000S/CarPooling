@@ -12,7 +12,7 @@ import android.util.Log;
 class ConnectionCLass {
 
     String classs = "com.mysql.jdbc.Driver";
-    String url = "jdbc:mysql://192.168.1.33/car_pooling";
+    String url = "jdbc:mysql://192.168.1.4/car_pooling";
     String user = "adrianstelea";
     String password = "AdrianStelea.2000";
 

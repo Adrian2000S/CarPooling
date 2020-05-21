@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import  java.sql.Statement;
 import  java.lang.*;
 
@@ -55,23 +56,26 @@ public class MainActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            DoLogin dologin = new DoLogin(email.getText().toString(), password.getText().toString(), "", false);
+            Dologin dologin = new Dologin(email.getText().toString(), password.getText().toString(), "", false, "", "");
             dologin.execute();
             }
         });
     }
 
-    public class DoLogin extends AsyncTask<String, String, String> {
+    public class Dologin extends AsyncTask<String, String, String> {
         String emailStr;
         String passStr;
         String z;
         boolean isSuccess;
+        String em, pass;
 
-        public DoLogin(String emailStr, String passStr, String z, boolean isSuccess) {
-            this.emailStr = emailStr;
-            this.passStr = passStr;
+        public Dologin(String emailStr, String passStr, String z, boolean isSuccess, String em, String pass) {
+            this.emailStr= emailStr;
+            this.passStr= passStr;
             this.z = z;
             this.isSuccess = isSuccess;
+            this.em = em;
+            this.pass = pass;
         }
 
         @Override
@@ -81,34 +85,46 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... strings) {
+        protected String doInBackground(String... params) {
             if (emailStr.trim().equals("") || passStr.trim().equals("")) {
                 z = "Inserire i dati richiesti...";
             } else {
                 try {
-                    Connection con = connectionClass.CONN();
-                    if (con == null) {
+                    Connection connect = connectionClass.CONN();
+                    if (connect == null) {
                         z = "Controllare la connessione Internet";
                     } else {
-                        String query = "SELECT utente.email, utente.password FROM utente WHERE utente.email ="+emailStr+" AND utente.password="+passStr+"";
-                        Statement stmt = con.createStatement();
-                        stmt.executeUpdate(query);
-                        z = "Login effettuato";
-                        isSuccess = true;
+                        String querySelect = "SELECT utente.email, utente.password FROM utente WHERE utente.email ='"+emailStr+"' AND utente.password='"+passStr+"'";
+                        Statement stmt = connect.createStatement();
+                        ResultSet rs = stmt.executeQuery(querySelect);
+                        while(rs.next()){
+                            em = rs.getString(1);
+                            pass = rs.getString(2);
+                            if(em.equals(emailStr) && pass.equals(passStr)){
+                                isSuccess = true;
+                                z = "Login effettuato";
+                            }else{
+                                isSuccess = false;
+                                z = "Login non eseguito";
+                            }
+                        }
                     }
                 } catch (Exception ex) {
                     isSuccess = false;
                     z = "Eccezioni" + ex;
                 }
-                startActivity(new Intent(MainActivity.this, PrenotationActivity.class));
+
             }
             return z;
         }
 
         @Override
         protected void onPostExecute(String s) {
+            Toast.makeText(getBaseContext(), "" + z, Toast.LENGTH_LONG).show();
             if (isSuccess = true) {
-                Toast.makeText(getApplicationContext(), "" + z, Toast.LENGTH_LONG).show();
+                Intent in = new Intent(MainActivity.this, MapsActivity.class);
+                in.putExtra("email", emailStr);
+                startActivity(in);
             }
             progressDialog.hide();
         }
