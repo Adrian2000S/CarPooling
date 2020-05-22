@@ -87,25 +87,30 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             if (emailStr.trim().equals("") || passStr.trim().equals("")) {
+                isSuccess=false;
                 z = "Inserire i dati richiesti...";
             } else {
                 try {
                     Connection connect = connectionClass.CONN();
                     if (connect == null) {
+                        isSuccess=false;
                         z = "Controllare la connessione Internet";
                     } else {
                         String querySelect = "SELECT utente.email, utente.password FROM utente WHERE utente.email ='"+emailStr+"' AND utente.password='"+passStr+"'";
-                        Statement stmt = connect.createStatement();
-                        ResultSet rs = stmt.executeQuery(querySelect);
+                        Statement sttmnt = connect.createStatement();
+                        ResultSet rs = sttmnt.executeQuery(querySelect);
                         while(rs.next()){
                             em = rs.getString(1);
                             pass = rs.getString(2);
                             if(em.equals(emailStr) && pass.equals(passStr)){
                                 isSuccess = true;
                                 z = "Login effettuato";
+                                Intent in = new Intent(MainActivity.this, MapsActivity.class);
+                                startActivity(in);
                             }else{
                                 isSuccess = false;
                                 z = "Login non eseguito";
+                                startActivity(new Intent(MainActivity.this, MainActivity.class));
                             }
                         }
                     }
@@ -121,10 +126,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             Toast.makeText(getBaseContext(), "" + z, Toast.LENGTH_LONG).show();
-            if (isSuccess = true) {
-                Intent in = new Intent(MainActivity.this, MapsActivity.class);
-                startActivity(in);
-            }
             progressDialog.hide();
         }
     }
