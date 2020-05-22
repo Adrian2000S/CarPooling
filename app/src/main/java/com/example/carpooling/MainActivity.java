@@ -123,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getBaseContext(), "" + z, Toast.LENGTH_LONG).show();
             if (isSuccess = true) {
                 Intent in = new Intent(MainActivity.this, MapsActivity.class);
-                in.putExtra("email", emailStr);
                 startActivity(in);
             }
             progressDialog.hide();
